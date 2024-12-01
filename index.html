@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <link rel="icon" href="./icon.png" type="image/x-icon">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terminal</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="cursor-trail"></div>
+    <div class="imageb"> <div class="title-bar">
+        <span>./image.png</span>
+        <div class="window-controls">
+            <div class="control-btn close"></div>
+        </div>
+    </div>
+</div>
+<div class="imageb2"> <div class="title-bar">
+        <span>./animation.gif</span>
+        <div class="window-controls">
+            <div class="control-btn close"></div>
+        </div>
+    </div>
+</div>
+    <div class="image"></div>
+    <div class="image2"></div>
+    <audio id="key-press-sound" src="./2.mp3" preload="auto"></audio>
+    
+    <audio id="background-audio" autoplay loop>
+        <source src="./1.mp3" type="audio/mp3">
+    </audio>
+
+    <script>
+        const audio = document.getElementById('key-press-sound');
+        document.addEventListener('keydown', function(event) {
+            audio.play();
+        });
+
+        document.addEventListener('keydown', function(event) {
+            if (event.ctrlKey && (event.key === '-' || event.key === '+' || event.key === '0')) {
+                event.preventDefault();
+            }
+        });
+    </script>
+
+    <div class="retro-pc">
+        <div class="screen"> <div class="title-bar">
+        <span>./terminal.sh</span>
+        <div class="window-controls">
+            <div class="control-btn close"></div>
+        </div>
+    </div>
+            <div class="terminal">
+                <div id="output"></div>
+                <div class="input-line">
+                    <span class="prompt">></span>
+                    <input type="text" id="commandInput" autofocus autocomplete="off" />
+                </div>
+            </div>
+        </div>
+    </div>
+
+   <div class="levitating-image" id="image1">
+    <img src="./circle.png" alt="Layer 1">
+    </div>
+   <div class="levitating-image" id="image2">
+    <img src="./test3.gif" alt="Layer 2">
+    </div>
+   <div class="levitating-image" id="image3">
+    <img src="./text.png" alt="Layer 3">
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>

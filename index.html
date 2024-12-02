@@ -25,24 +25,35 @@
 </div>
     <div class="image"></div>
     <div class="image2"></div>
-    <audio id="key-press-sound" src="./2.mp3" preload="auto"></audio>
-    
+    <audio id="key-press-sound-1" src="./2.mp3" preload="auto"></audio>
+    <audio id="key-press-sound-2" src="./2.mp3" preload="auto"></audio>
     <audio id="background-audio" autoplay loop>
-        <source src="./1.mp3" type="audio/mp3">
+     <source src="./1.mp3" type="audio/mp3">
     </audio>
 
     <script>
-        const audio = document.getElementById('key-press-sound');
-        document.addEventListener('keydown', function(event) {
-            audio.play();
+      const audioElements = [
+       document.getElementById('key-press-sound-1'),
+       document.getElementById('key-press-sound-2'),
+        ];
+
+      let currentAudioIndex = 0;
+
+       document.addEventListener('keydown', function(event) {
+      const audio = audioElements[currentAudioIndex];
+       audio.currentTime = 0;
+       audio.play();
+
+       currentAudioIndex = (currentAudioIndex + 1) % audioElements.length;
         });
 
-        document.addEventListener('keydown', function(event) {
-            if (event.ctrlKey && (event.key === '-' || event.key === '+' || event.key === '0')) {
-                event.preventDefault();
-            }
-        });
+       document.addEventListener('keydown', function(event) {
+      if (event.ctrlKey && (event.key === '-' || event.key === '+' || event.key === '0')) {
+       event.preventDefault();
+         }
+      });
     </script>
+
 
     <div class="retro-pc">
         <div class="screen"> <div class="title-bar">

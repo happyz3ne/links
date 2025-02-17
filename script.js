@@ -73,7 +73,7 @@ window.onload = function() {
 
         switch (command.toLowerCase()) {
             case 'help':
-                response = 'List of available commands:\n- telegram\n- youtube\n- spigot\n- deviant\n- creator';
+                response = 'List of available commands:\n- telegram\n- fiverr\n- youtube\n- spigot\n- deviant\n- creator\n- falatia';
                 break;
             case 'ls':
                 response = './readme.txt';
@@ -91,6 +91,9 @@ Pulksten is a answer.
             case 'creator':
                 response = 'ArtOS version 1.1 created by MrZ3NE owner of this all pages and arts';
                 break;
+            case 'fiverr':
+                response = "Fiverr: <a href='https://www.fiverr.com/s/e6VeGZm' target='_blank'>*Click*</a>";
+                break;
             case 'telegram':
                 response = "Telegram Store: <a href='https://t.me/kantora_zeina' target='_blank'>*Click*</a>";
                 break;
@@ -102,6 +105,9 @@ Pulksten is a answer.
                 break;
             case 'youtube':
                 response = "YouTube Channel: <a href='https://www.youtube.com/channel/UCOavutipDDChf83KDWejEpg' target='_blank'>*Click*</a>";
+                break;
+           case 'falatia':
+                response = "Falatia Project: <a href='https://falatia.fun' target='_blank'>*Click*</a>";
                 break;
             case 'eye':
                 response = `

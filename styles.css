@@ -106,7 +106,7 @@ body::before {
 }
 .image2 {
     position: absolute;
-    background-image: url('./im.gif');
+    background-image: url('./im.png');
     top: 10%;
     left: 77%;
     width: 370px;

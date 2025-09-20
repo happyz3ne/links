@@ -265,6 +265,30 @@ body, html {
   100% { opacity: 0.7; filter: brightness(1); }
 }
 
+/* --- Mobile adjustments --- */
+@media (max-width:768px) {
+  .app-window {
+    width: 90vw !important;     /* ширина 90% від ширини екрану */
+    height: 80vh !important;    /* висота 80% від висоти екрану */
+    top: 50% !important;        /* центр по вертикалі */
+    left: 50% !important;       /* центр по горизонталі */
+    transform: translate(-50%, -50%) !important; /* вирівнювання по центру */
+    max-width: 400px;           /* обмеження на максимальну ширину */
+    max-height: 500px;          /* обмеження на максимальну висоту */
+  }
+
+  .icons {
+    top: 10px !important;
+    left: 10px !important;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  #desktop {
+    overflow-y: auto;
+  }
+}
 
 
 .window-header {
@@ -436,14 +460,14 @@ function updateClock(){
 setInterval(updateClock,1000);
 updateClock();
 
-// Draggable windows
 function makeDraggable(el) {
   let posX = 0, posY = 0, mouseX = 0, mouseY = 0;
   const header = el.querySelector('.window-header');
   if (!header) return;
-  
+
+  // --- Desktop drag ---
   header.onmousedown = dragMouseDown;
-  
+
   function dragMouseDown(e) {
     e.preventDefault();
     mouseX = e.clientX;
@@ -451,7 +475,7 @@ function makeDraggable(el) {
     document.onmousemove = elementDrag;
     document.onmouseup = closeDragElement;
   }
-  
+
   function elementDrag(e) {
     e.preventDefault();
     posX = mouseX - e.clientX;
@@ -460,18 +484,41 @@ function makeDraggable(el) {
     mouseY = e.clientY;
     el.style.top = (el.offsetTop - posY) + "px";
     el.style.left = (el.offsetLeft - posX) + "px";
+    el.style.transform = 'none'; // Вимикаємо transform при перетягуванні
   }
-  
+
   function closeDragElement() {
     document.onmouseup = null;
     document.onmousemove = null;
   }
+
+  // --- Mobile drag ---
+  header.addEventListener('touchstart', function(e) {
+    const touch = e.touches[0];
+    mouseX = touch.clientX;
+    mouseY = touch.clientY;
+  }, { passive: false });
+
+  header.addEventListener('touchmove', function(e) {
+    const touch = e.touches[0];
+    posX = mouseX - touch.clientX;
+    posY = mouseY - touch.clientY;
+    mouseX = touch.clientX;
+    mouseY = touch.clientY;
+    el.style.top = (el.offsetTop - posY) + "px";
+    el.style.left = (el.offsetLeft - posX) + "px";
+    el.style.transform = 'none'; // Знімаємо центрирування при drag
+    e.preventDefault();
+  }, { passive: false });
 }
 
 // Apply draggable
 ['aboutWindow','telegramWindow','deviantartWindow','youtubeWindow','galleryWindow','gallery1Window','gallery2Window','trashWindow'].forEach(id => {
-  makeDraggable(document.getElementById(id));
+  const win = document.getElementById(id);
+  makeDraggable(win);
 });
+;
+
 
 // Open/close apps + taskbar buttons
 const activeAppsDiv = document.getElementById('activeApps');
@@ -547,4 +594,3 @@ document.addEventListener('mousemove', (e) => {
 
 </body>
 </html>
-

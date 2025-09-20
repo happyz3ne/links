@@ -1,4 +1,4 @@
-'''$ ArtOS Portfolio Project
+$ ArtOS Portfolio Project
 
 > This is a personal project with terminal-style interface,
 > animated windows, cursor effects, and multimedia layers.
@@ -17,4 +17,4 @@
   * Study the code for learning purposes
   * Ask for permission to use parts of the project
 
-=> CONTACT: MrZ3NE'''
+=> CONTACT: MrZ3NE

@@ -45,7 +45,7 @@ window.onload = function() {
 
             // редірект після завершення анімації
             setTimeout(() => {
-                window.location.href = 'system.jsx';
+                window.location.href = 'system.html';
             }, 600);
         }
     }

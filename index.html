@@ -1,86 +1,320 @@
 <!DOCTYPE html>
 <html lang="uk">
 <head>
-    <link rel="icon" href="./icon.png" type="image/x-icon">
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Terminal</title>
-    <link rel="stylesheet" href="styles.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Terminal</title>
+<link rel="icon" href="./icon.png" type="image/x-icon">
+<style>
+/* --- Base styles --- */
+body {
+    font-family: monospace;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    background-color: #000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    flex-direction: row;
+}
+
+/* --- Фон з клітинками --- */
+body::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('./bg.webp');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    z-index: -3;
+    filter: blur(6px) brightness(0.4);
+    opacity: 0.8;
+}
+body::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+        rgba(255,255,255,0.05) 0 1px,
+        transparent 1px 40px
+    ),
+    repeating-linear-gradient(
+        90deg,
+        rgba(255,255,255,0.05) 0 1px,
+        transparent 1px 40px
+    );
+    z-index: -2;
+}
+/* --- Темніші / прозорі зображення --- */
+.image, .image2, .levitating-image img, .levitating-image video {
+    opacity: 0.8;          /* прозорість */
+    filter: brightness(0.8); /* темніше */
+}
+
+/* --- Dark overlay для глибини --- */
+#dark-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.25);
+    z-index: -1;
+}
+
+/* Cursor trail */
+#cursor-trail {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 10000;
+}
+.cursor-dot {
+    position: absolute;
+    color: #00fff7;
+    font-family: monospace;
+    font-size: 12px;
+    opacity: 1;
+    pointer-events: none;
+    transition: transform 0.3s ease, opacity 0.5s ease;
+}
+
+/* Вікна */
+.imageb, .imageb2 {
+    position: absolute;
+    width: 370px;
+    height: 330px;
+    box-sizing: border-box;
+    background: rgba(0,255,255,0.1);
+    border: 2px solid rgba(0,255,255,0.4);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    overflow: hidden;
+    z-index: 9998;
+    animation: levitate 4s ease-in-out infinite;
+    border-radius: 12px;
+}
+.imageb { top: 55%; left: 73%; }
+.imageb2 { top: 10%; left: 77%; }
+
+.imageb::before, .imageb2::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: repeating-linear-gradient(rgba(0,255,255,0.03) 0px, transparent 3px);
+    pointer-events: none;
+    z-index: 2;
+}
+
+/* Title bar */
+.title-bar {
+    height: 30px;
+    background-color: rgba(0,0,0,0.6);
+    border-bottom: 1px solid rgba(0,255,255,0.4);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 10px;
+    color: #fff;
+    font-size: 14px;
+}
+.window-controls { display: flex; gap: 5px; }
+.control-btn { width:12px; height:12px; border-radius:50%; background-color:#00ffff; border:1px solid rgba(0,255,255,0.6); cursor:pointer; }
+.control-btn.close { background-color: rgba(255,0,0,0.6); }
+
+/* Картинки */
+.image { position:absolute; top:55%; left:73%; width:370px; height:330px; background-image:url('./robot.png'); z-index:9997; opacity:0.8; filter:brightness(0.8); animation: levitate 4s ease-in-out infinite; }
+.image2 { position:absolute; top:10%; left:77%; width:370px; height:330px; background-image:url('./im.png'); z-index:9997; opacity:0.8; filter:brightness(0.8); animation: levitate 4s ease-in-out infinite; }
+
+/* Терминал */
+.screen {
+    position:absolute; top:6%; left:7%;
+    width:370px; height:330px;
+    background-color: rgba(0,0,0,0.15);
+    border:2px solid rgba(0,255,255,0.4);
+    display:flex; flex-direction:column; justify-content:flex-start;
+    overflow:hidden; filter: brightness(1.1) contrast(1.2);
+    z-index:9999; animation: levitate 4s ease-in-out infinite;
+    border-radius: 12px;
+}
+.screen::before {
+    content:'';
+    position:absolute; top:0; left:0;
+    width:100%; height:100%;
+    background: repeating-linear-gradient(rgba(0,0,255,0.03) 0px, transparent 3px);
+    pointer-events:none; z-index:2;
+}
+.terminal {
+    width: 100%; height: 100%; padding:10px; color:#fff;
+    overflow-y:auto; font-size:16px;
+    box-sizing:border-box; background:linear-gradient(rgba(0,0,0,0.15) 1px, transparent 1px);
+    background-size:100% 3px; text-shadow:0 0 2px #0ff,0 0 4px #0ff;
+    z-index:3; position:relative; opacity:1;
+}
+.input-line { display:flex; align-items:center; }
+.prompt { margin-right:5px; }
+#commandInput { background:none; border:none; outline:none; color:#fff; width:100%; font-size:16px; text-shadow:0 0 2px #0ff,0 0 4px #0ff; }
+
+/* Levitating layers */
+.levitating-image { position:absolute; display:flex; justify-content:center; align-items:center; overflow:visible; }
+#image1, #image2, #image3 { animation: levitate 4s ease-in-out infinite; opacity:0.8; filter:brightness(0.8); }
+#image1 { top:360px; left:420px; width:1000px; height:400px; }
+#image2 { top:230px; left:400px; width:1100px; height:500px; }
+#image3 { top:230px; left:400px; width:1100px; height:500px; animation: levitate 4s ease-in-out infinite, flicker 0.3s infinite; }
+
+@keyframes levitate {0%,100%{transform:translateY(0);}50%{transform:translateY(-10px);}}
+@keyframes flicker {0%,100%{opacity:1;}50%{opacity:0.8;}}
+
+/* Links style */
+a { color:#00ffff; text-decoration:none; border-bottom:1px solid #00ffff; }
+a:hover { color:#fff; border-bottom:1px solid #fff; }
+
+/* Mobile */
+@media (max-width:768px){
+    body { flex-direction: column; align-items:center; overflow-y:auto; }
+    .imageb, .imageb2, .image, .image2, #image1, #image2, #image3 { display:none; }
+    .screen { position: relative; top: auto; left: auto; width: 90vw; height: auto; display: flex; margin: 10px 0; }
+    .terminal { width: 100%; font-size: 14px; height: 60vh; overflow-y: auto; }
+    #cursor-trail { z-index: 10000; }
+}
+</style>
 </head>
 <body>
-    <div id="cursor-trail"></div>
-    <div class="imageb"> <div class="title-bar">
+<div id="dark-overlay"></div>
+
+<div id="cursor-trail"></div>
+
+<div class="imageb">
+    <div class="title-bar">
         <span>./robot.png</span>
-        <div class="window-controls">
-            <div class="control-btn close"></div>
-        </div>
+        <div class="window-controls"><div class="control-btn close"></div></div>
     </div>
 </div>
-<div class="imageb2"> <div class="title-bar">
+
+<div class="imageb2">
+    <div class="title-bar">
         <span>./logo.png</span>
-        <div class="window-controls">
-            <div class="control-btn close"></div>
-        </div>
+        <div class="window-controls"><div class="control-btn close"></div></div>
     </div>
 </div>
-    <div class="image"></div>
-    <div class="image2"></div>
-    <audio id="key-press-sound-1" src="./2.mp3" preload="auto"></audio>
-    <audio id="key-press-sound-2" src="./2.mp3" preload="auto"></audio>
-    <audio id="background-audio" autoplay loop>
-     <source src="./1.mp3" type="audio/mp3">
-    </audio>
 
-    <script>
-      const audioElements = [
-       document.getElementById('key-press-sound-1'),
-       document.getElementById('key-press-sound-2'),
-        ];
+<div class="image"></div>
+<div class="image2"></div>
 
-      let currentAudioIndex = 0;
+<audio id="key-press-sound-1" src="./2.mp3" preload="auto"></audio>
+<audio id="key-press-sound-2" src="./2.mp3" preload="auto"></audio>
+<audio id="background-audio" autoplay loop>
+    <source src="./1.mp3" type="audio/mp3">
+</audio>
 
-       document.addEventListener('keydown', function(event) {
-      const audio = audioElements[currentAudioIndex];
-       audio.currentTime = 0;
-       audio.play();
-
-       currentAudioIndex = (currentAudioIndex + 1) % audioElements.length;
-        });
-
-       document.addEventListener('keydown', function(event) {
-      if (event.ctrlKey && (event.key === '-' || event.key === '+' || event.key === '0')) {
-       event.preventDefault();
-         }
-      });
-    </script>
-
-
-    <div class="retro-pc">
-        <div class="screen"> <div class="title-bar">
-        <span>./terminal.sh</span>
-        <div class="window-controls">
-            <div class="control-btn close"></div>
+<div class="retro-pc">
+    <div class="screen">
+        <div class="title-bar">
+            <span>./terminal.sh</span>
+            <div class="window-controls"><div class="control-btn close"></div></div>
         </div>
-    </div>
-            <div class="terminal">
-                <div id="output"></div>
-                <div class="input-line">
-                    <span class="prompt">></span>
-                    <input type="text" id="commandInput" autofocus autocomplete="off" />
-                </div>
+        <div class="terminal">
+            <div id="output"></div>
+            <div class="input-line">
+                <span class="prompt">></span>
+                <input type="text" id="commandInput" autofocus autocomplete="off" />
             </div>
         </div>
     </div>
+</div>
 
-   <div class="levitating-image" id="image1">
+<div class="levitating-image" id="image1">
     <img src="./circle.webp" alt="Layer 1">
-    </div>
-   <div class="levitating-image" id="image2">
+</div>
+<div class="levitating-image" id="image2">
     <video src="./test3.webm" autoplay muted loop playsinline></video>
-    </div>
-   <div class="levitating-image" id="image3">
+</div>
+<div class="levitating-image" id="image3">
     <img src="./text.webp" alt="Layer 3">
-    </div>
-    <script src="script.js"></script>
+</div>
+
+<script>
+let blockNavigation = false;
+
+document.addEventListener('keydown', function(event) {
+    if (event.altKey) blockNavigation = true;
+});
+
+window.onload = function() {
+    const output = document.getElementById('output');
+    const cursorTrail = document.getElementById('cursor-trail');
+
+    const messages = [
+        '[BOOT] Initializing system...',
+        '[OK] Loading kernel modules...',
+        '[OK] Mounting /portfolio...',
+        '[OK] Starting UI service...',
+        'Welcome ArtOS! Wait before system is loading.'
+    ];
+
+    let messageIndex = 0;
+    function showNextMessage() {
+        if (messageIndex < messages.length) {
+            const messageDiv = document.createElement('div');
+            messageDiv.textContent = messages[messageIndex];
+            output.appendChild(messageDiv);
+            messageIndex++;
+            setTimeout(showNextMessage, 1000);
+        } else if (!blockNavigation) {
+            const blackScreen = document.createElement('div');
+            blackScreen.style.position='fixed';
+            blackScreen.style.top='50%';
+            blackScreen.style.left='50%';
+            blackScreen.style.width='0';
+            blackScreen.style.height='0';
+            blackScreen.style.background='#000';
+            blackScreen.style.zIndex='9999';
+            blackScreen.style.transform='translate(-50%,-50%) scale(0)';
+            blackScreen.style.transition='transform 0.5s ease-out';
+            document.body.appendChild(blackScreen);
+            setTimeout(()=>{ blackScreen.style.transform='translate(-50%,-50%) scale(1)'; blackScreen.style.width='100%'; blackScreen.style.height='100%'; },50);
+            setTimeout(()=>window.location.href='system.html',600);
+        }
+    }
+    showNextMessage();
+
+    // Cursor trail
+    function addCursorDot(x, y) {
+        const trailElement = document.createElement('div');
+        trailElement.className = 'cursor-dot';
+        trailElement.textContent = Math.random() > 0.5 ? '0' : '1';
+        trailElement.style.left = `${x}px`;
+        trailElement.style.top = `${y}px`;
+        cursorTrail.appendChild(trailElement);
+        setTimeout(()=>{ trailElement.style.opacity='0'; trailElement.style.transform='translateY(-10px)'; },10);
+        setTimeout(()=>trailElement.remove(),600);
+    }
+    document.addEventListener('mousemove', e => addCursorDot(e.pageX, e.pageY));
+    document.addEventListener('touchmove', e => addCursorDot(e.touches[0].pageX, e.touches[0].pageY));
+
+    // Keypress sounds
+    const audioElements = [document.getElementById('key-press-sound-1'), document.getElementById('key-press-sound-2')];
+    let currentAudioIndex = 0;
+    document.addEventListener('keydown', function(event){
+        const audio = audioElements[currentAudioIndex];
+        audio.currentTime = 0;
+        audio.play();
+        currentAudioIndex = (currentAudioIndex + 1) % audioElements.length;
+    });
+
+    // Prevent zoom
+    document.addEventListener('keydown', function(event){
+        if(event.ctrlKey && (event.key === '-' || event.key === '+' || event.key === '0')) event.preventDefault();
+    });
+};
+</script>
 </body>
 </html>

@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>./art_os</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<audio id="bgAudio" loop>
+  <source src="./1.mp3" type="audio/mpeg">
+  Your browser does not support the audio element.
+</audio>
+<style>
+body, html {
+  margin:0;
+  padding:0;
+  height:100%;
+  font-family:monospace;
+  background:#0a0f1c;
+  color:#00fff7;
+  overflow:hidden;
+}
+
+/* Boot animation */
+#boot {
+  position:absolute;
+  top:0;
+  left:0;
+  right:0;
+  bottom:0;
+  background:#000;
+  text-shadow:0 0 5px #00fff7,0 0 10px #00fff7;
+  font-weight:bold;
+  padding:5px 10px;
+  padding:20px;
+  font-size:14px;
+  white-space:pre-wrap;
+}
+
+/* Desktop */
+#desktop {
+  display:none;
+  position:absolute;
+  text-shadow:0 0 5px #00fff7,0 0 10px #00fff7;
+  font-weight:bold;
+  padding:5px 10px;
+  inset:0;
+  background: url('./wallpaper_sys.png') center/cover no-repeat;
+  color:#e2e8f0;
+}
+
+/* Taskbar */
+.taskbar {
+  position:absolute;
+  bottom:0;
+  left:0;
+  right:0;
+  background:rgba(0,0,0,0.6);
+  border-top:1px solid #00fff7;
+  text-shadow:0 0 5px #00fff7,0 0 10px #00fff7;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:5px 15px;
+  color:#00fff7;
+  border-radius:12px 12px 0 0;
+  box-shadow:0 0 15px rgba(0,255text-shadow:0 0 5px #00fff7,0 0 10px #00fff7;
+  font-weight:bold;
+  padding:5px 10px;,247,0.4);
+}
+
+/* Start button */
+#startBtn {
+  padding:5px 15px;
+  border-radius:12px;
+  border:1px solid #00fff7;
+  background:linear-gradient(145deg, rgba(0,255,247,0.1), rgba(0,255,247,0.2));
+  color:#00fff7;
+  text-shadow:0 0 5px #00fff7,0 0 10px #00fff7;
+  font-weight:bold;
+  cursor:pointer;
+  box-shadow:0 0 10px rgba(0,255,247,0.5);
+  transition:all 0.3s;
+}
+#startBtn:hover {
+  background:linear-gradient(145deg, rgba(0,255,247,0.2), rgba(0,255,247,0.4));
+  box-shadow:0 0 20px rgba(0,255,247,0.8);
+  transform:scale(1.05);
+}
+
+/* Active apps bar */
+#activeApps {
+  display:flex;
+  gap:5px;
+  flex:1;
+  margin:0 10px;
+}
+.activeAppBtn {
+  padding:3px 8px;
+  background:rgba(0,255,247,0.1);
+  border:1px solid #00fff7;
+  border-radius:8px;
+  cursor:pointer;
+  font-size:12px;
+  transition:all 0.2s;
+  box-shadow:0 0 5px rgba(0,255,247,0.5);
+}
+.activeAppBtn.active {
+  background:rgba(0,255,247,0.2);
+  box-shadow:0 0 15px rgba(0,255,247,1);
+  animation:glow 1.2s infinite alternate;
+}
+@keyframes glow {
+  from {box-shadow:0 0 5px #00fff7;}
+  to {box-shadow:0 0 20px #00fff7;}
+}
+.activeAppBtn:hover {
+  background:rgba(0,255,247,0.3);
+  box-shadow:0 0 20px rgba(0,255,247,0.8);
+}
+
+/* System info */
+#sysInfo { font-size:12px; color:#00fff7; font-family:monospace; margin-left:10px; text-shadow:0 0 5px #00fff7,0 0 10px #00fff7; padding:5px 10px; font-weight:bold; border-radius:8px; }
+
+/* Clock */
+#clock {
+  font-family:monospace;
+  color:#00fff7;
+  text-shadow:0 0 5px #00fff7,0 0 10px #00fff7;
+  font-weight:bold;
+  padding:5px 10px;
+  border-radius:8px;
+  background:rgba(0,0,0,0.3);
+}
+
+/* Icons */
+.icons {
+  position:absolute;
+  top:60px;
+  left:40px;
+  display:flex;
+  flex-direction:column;
+  gap:20px;
+}
+
+.icon {
+  text-align:center;
+  cursor:pointer;
+  padding:10px;
+  border-radius:12px;
+  border:1px solid #00fff7;
+  background:rgba(0,255,247,0.05);
+  box-shadow:0 0 10px rgba(0,255,247,0.3);
+  transition:all 0.2s;
+}
+.icon:hover {
+  box-shadow:0 0 20px rgba(0,255,247,0.6);
+  transform:scale(1.05);
+}
+
+/* Start menu */
+.startmenu {
+  position:absolute;
+  bottom:40px;
+  left:20px;
+  background:rgba(0,0,0,0.85);
+  text-shadow:0 0 5px #00fff7,0 0 10px #00fff7;
+  border:1px solid #00fff7;
+  padding:10px;
+  display:none;
+  border-radius:12px;
+  animation:fadeIn 0.3s ease forwards;
+  z-index:1000;
+}
+.startmenu button {
+  display:block;
+  background:none;
+  border:none;
+  color:#00fff7;
+  text-align:left;
+  font-weight:bold;
+  padding:5px 10px;
+  cursor:pointer;
+  border-radius:8px;
+  transition:all 0.2s;
+  text-shadow: 0 0 5px #00fff7, 0 0 10px #00fff7;
+}
+
+.startmenu button:hover {
+  background: rgba(0,255,247,0.2);
+  text-shadow: 0 0 5px #00fff7, 0 0 10px #00fff7;
+  border-radius:8px;
+  font-weight:bold;
+  padding:5px 10px;
+}
+
+/* App windows */
+.app-window {
+  position:absolute;
+  width:400px;
+  height:400px;
+  background:rgba(10,15,28,0.95);
+  border:2px solid #00fff7;
+  border-radius:12px;
+  top:100px;
+  left:100px;
+  box-shadow:0 0 20px rgba(0,255,247,0.5);
+  display:none;
+  overflow:hidden;
+  animation:windowOpen 0.4s ease forwards;
+}
+@keyframes windowOpen {
+  from {transform:scale(0.5);opacity:0;}
+  to {transform:scale(1);opacity:1;}
+}
+@keyframes fadeIn {
+  from {opacity:0;transform:translateY(10px);}
+  to {opacity:1;transform:translateY(0);}
+}
+#glitchScreen {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 9999;
+  overflow: hidden;
+}
+
+#glitchScreen::before,
+#glitchScreen::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,255,247,0.05);
+  mix-blend-mode: difference;
+  animation: 
+    glitchFull 0.1s infinite linear alternate-reverse,
+    flicker 0.1s infinite alternate;
+}
+
+#glitchScreen::after {
+  background: rgba(255,0,255,0.05);
+  animation-delay: 0.15s;
+}
+
+@keyframes glitchFull {
+  0%   { clip-path: inset(0% 0 90% 0); transform: translate(0,0); }
+  10%  { clip-path: inset(5% 0 85% 0); transform: translate(-5px,3px); }
+  20%  { clip-path: inset(10% 0 80% 0); transform: translate(5px,-3px); }
+  30%  { clip-path: inset(15% 0 75% 0); transform: translate(-5px,2px); }
+  40%  { clip-path: inset(20% 0 70% 0); transform: translate(5px,0); }
+  50%  { clip-path: inset(25% 0 65% 0); transform: translate(-5px,-2px); }
+  60%  { clip-path: inset(30% 0 60% 0); transform: translate(5px,2px); }
+  70%  { clip-path: inset(35% 0 55% 0); transform: translate(-5px,0); }
+  80%  { clip-path: inset(40% 0 50% 0); transform: translate(5px,-2px); }
+  90%  { clip-path: inset(45% 0 45% 0); transform: translate(-5px,1px); }
+  100% { clip-path: inset(50% 0 0% 0); transform: translate(0,0); }
+}
+@keyframes flicker {
+  0%   { opacity: 0.7; filter: brightness(1); }
+  25%  { opacity: 1;   filter: brightness(1.5); }
+  50%  { opacity: 0.6; filter: brightness(0.8); }
+  75%  { opacity: 1;   filter: brightness(1.2); }
+  100% { opacity: 0.7; filter: brightness(1); }
+}
+
+
+
+.window-header {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  background:#001220;
+  padding:5px 10px;
+  border-bottom:1px solid #00fff7;
+  cursor:grab;
+}
+.window-header .title {
+  display:flex;
+  text-shadow:0 0 5px #00fff7,0 0 10px #00fff7;
+  font-weight:bold;
+  color:#ffffff;
+  padding:5px 10px;
+  border-radius:8px;
+  align-items:center;
+  gap:8px;
+}
+.window-header .title i { color:#ffffff; }
+.window-header button {
+  background:none;
+  border:none;
+  color:#00fff7;
+  cursor:pointer;
+  font-size:14px;
+  transition:color 0.2s;
+}
+.window-header button:hover { color:#ffffff; }
+.window-content { padding:15px; color:#00fff7; }
+</style>
+</head>
+<body>
+<div id="glitchScreen"></div>
+<div id="boot"></div>
+<div id="desktop">
+  <div class="icons">
+    <div class="icon" onclick="openApp('about')"><i class="fas fa-user"></i><br>About</div>
+    <div class="icon" onclick="openApp('telegram')"><i class="fab fa-telegram"></i><br>Telegram</div>
+    <div class="icon" onclick="openApp('deviantart')"><i class="fab fa-deviantart"></i><br>DeviantArt</div>
+    <div class="icon" onclick="openApp('youtube')"><i class="fab fa-youtube"></i><br>YouTube</div>
+    <div class="icon" onclick="openApps('gallery','gallery1','gallery2')"><i class="fas fa-images"></i><br>Gallery</div>
+    <div class="icon" onclick="openApp('trash')"><i class="fas fa-trash"></i><br>Trash</div>
+  </div>
+
+  <div class="taskbar">
+    <button id="startBtn">⭒₊ ⊹⬤₊ ⊹⭒</button>
+    <div id="activeApps"></div>
+    <div id="sysInfo">Processes: 65 | RAM: 2.3GB</div>
+    <div id="clock"></div>
+  </div>
+
+  <div class="startmenu" id="startMenu">
+    <button onclick="openApp('about')">About</button>
+    <button onclick="openApp('telegram')">Telegram</button>
+    <button onclick="openApp('deviantart')">DeviantArt</button>
+    <button onclick="openApp('youtube')">YouTube</button>
+    <button onclick="openApps('gallery','gallery1','gallery2')">Gallery</button>
+    <button onclick="openApp('trash')">Trash</button>
+  </div>
+
+  <!-- App windows -->
+  <div class="app-window" id="aboutWindow">
+    <div class="window-header"><div class="title"><i class="fas fa-user"></i> About</div><button onclick="closeApp('about')">⬤</button></div>
+    <div class="window-content">₊˚⊹♡ Hi am 19 years old and a 3D artist. I work with Blender, Photoshop, Cinema 4D, After Effects, and Premiere Pro. I am also a programmer, currently learning Java and Python, and planning to study C++ in the future.
+
+If you want to purchase any of my artwork or commission a custom piece, feel free to leave a comment or send me a message on Discord – mrz3ne</div>
+  </div>
+  <div class="app-window" id="telegramWindow">
+    <div class="window-header"><div class="title"><i class="fab fa-telegram"></i> Telegram</div><button onclick="closeApp('telegram')">⬤</button></div>
+    <div class="window-content">Telegram store: <a href="https://t.me/kantora_zeina" target="_blank" style="color:#00fff7">*Click*</a></div>
+  </div>
+  <div class="app-window" id="deviantartWindow">
+    <div class="window-header"><div class="title"><i class="fab fa-deviantart"></i> DeviantArt</div><button onclick="closeApp('deviantart')">⬤</button></div>
+    <div class="window-content">My deviantArt portfolio: <a href="https://www.deviantart.com/happymrz3ne" target="_blank" style="color:#00fff7">*Click*</a></div>
+  </div>
+  <div class="app-window" id="youtubeWindow">
+    <div class="window-header"><div class="title"><i class="fab fa-youtube"></i> YouTube</div><button onclick="closeApp('youtube')">⬤</button></div>
+    <div class="window-content">My YouTube Channel: <a href="https://www.youtube.com/@mrz3ne" target="_blank" style="color:#00fff7">*Click*</a></div>
+  </div>
+  <div class="app-window" id="trashWindow">
+  <div class="window-header">
+    <div class="title"><i class="fas fa-trash"></i> Trash</div>
+    <button onclick="closeApp('trash')">⬤</button>
+  </div>
+  <div class="window-content" style="display:flex; flex-direction:column; justify-content:flex-start; align-items:flex-start; height:100%; padding:10px;">
+    <!-- Клікабельна іконка -->
+    <a href="https://youtu.be/dQw4w9WgXcQ?si=PUdqmvXxOK11h5S0" target="_blank" style="color:#00fff7; margin-left:15px; font-size:58px; text-align:left;">
+      <i class="fas fa-file"></i>
+    </a>
+    <!-- Текст під іконкою -->
+    <span style="margin-top:5px; font-size:14px; text-align:left; color:#00fff7;">readme.txt</span>
+  </div>
+</div>
+
+
+  </div>
+  <div class="app-window" id="galleryWindow">
+    <div class="window-header"><div class="title"><i class="fas fa-images"></i> Image</div><button onclick="closeApp('gallery')">⬤</button></div>
+    <div class="window-content">
+      <img src="./image2.webp" alt="render1" style="width:100%; height:100%; display:block;">
+    </div>
+  </div>
+</div>
+  <div class="app-window" id="gallery1Window">
+    <div class="window-header"><div class="title"><i class="fas fa-images"></i> Image 2</div><button onclick="closeApp('gallery1')">⬤</button></div>
+    <div class="window-content" style="display:flex; justify-content:center; align-items:center; height:100%;">
+      <img src="./image1.webp" alt="render1" style="width:60%; height:100%; display:block;">
+    </div>
+  </div>
+</div>
+  <div class="app-window" id="gallery2Window">
+    <div class="window-header"><div class="title"><i class="fas fa-images"></i> Image 3</div><button onclick="closeApp('gallery2')">⬤</button></div>
+    <div class="window-content" style="display:flex; justify-content:center; align-items:center; height:100%;">
+      <img src="./image3.webp" alt="render1" style="width:60%; height:100%; display:block;">
+    </div>
+  </div>
+</div>
+
+<script>
+// Фонове аудіо
+const audio = document.getElementById('bgAudio');
+
+// Задаємо, з якої секунди почати (наприклад, 30 секунд)
+audio.currentTime = 30;
+
+// Після завантаження аудіо відтворюємо його
+audio.addEventListener('canplay', () => {
+    audio.play().catch(err => console.log('Autoplay blocked', err));
+});
+// Boot animation
+const bootLines=["[BOOT] Coffee.exe initialized...","[OK] Loading Blender & Cinema4D drivers...","[OK] Installing creativity package...","[OK] Rendering inspiration...","[OK] Compiling shaders with 110% GPU...","[DONE] Art_OS online. Welcome to MrZ3NE creative core."];
+let idx=0;
+const bootDiv=document.getElementById('boot');
+function showNextLine(){
+  if(idx<bootLines.length){
+    const line=document.createElement('div');
+    line.textContent=bootLines[idx];
+    bootDiv.appendChild(line);
+    idx++;
+    setTimeout(showNextLine,800);
+  } else {
+    setTimeout(()=>{
+      bootDiv.style.display='none';
+      document.getElementById('desktop').style.display='block';
+    },500);
+  }
+}
+showNextLine();
+
+// Start menu toggle
+const startBtn=document.getElementById('startBtn');
+const startMenu=document.getElementById('startMenu');
+startBtn.onclick=()=>{startMenu.style.display=(startMenu.style.display==='block'?'none':'block');};
+
+function openApps(...apps) {
+  apps.forEach(app => openApp(app));
+}
+// Clock
+function updateClock(){
+  const now=new Date();
+  document.getElementById('clock').textContent=now.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+}
+setInterval(updateClock,1000);
+updateClock();
+
+// Draggable windows
+function makeDraggable(el) {
+  let posX = 0, posY = 0, mouseX = 0, mouseY = 0;
+  const header = el.querySelector('.window-header');
+  if (!header) return;
+  
+  header.onmousedown = dragMouseDown;
+  
+  function dragMouseDown(e) {
+    e.preventDefault();
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+    document.onmousemove = elementDrag;
+    document.onmouseup = closeDragElement;
+  }
+  
+  function elementDrag(e) {
+    e.preventDefault();
+    posX = mouseX - e.clientX;
+    posY = mouseY - e.clientY;
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+    el.style.top = (el.offsetTop - posY) + "px";
+    el.style.left = (el.offsetLeft - posX) + "px";
+  }
+  
+  function closeDragElement() {
+    document.onmouseup = null;
+    document.onmousemove = null;
+  }
+}
+
+// Apply draggable
+['aboutWindow','telegramWindow','deviantartWindow','youtubeWindow','galleryWindow','gallery1Window','gallery2Window','trashWindow'].forEach(id => {
+  makeDraggable(document.getElementById(id));
+});
+
+// Open/close apps + taskbar buttons
+const activeAppsDiv = document.getElementById('activeApps');
+let openWindowCount = 0; // рахує скільки вікон відкрито
+
+function openApp(app){
+  const win = document.getElementById(app+'Window');
+  if(win.style.display === 'block') return; // якщо вже відкрите, нічого не робимо
+
+  // Встановлюємо позицію з відступом від попередніх вікон
+  const offset = 30; // зміщення пікселів
+  win.style.top = 100 + openWindowCount * offset + 'px';
+  win.style.left = 100 + openWindowCount * offset + 'px';
+
+  win.style.display='block';
+
+  // Додаємо кнопку в taskbar
+  if(!document.getElementById('task-'+app)){
+    const btn = document.createElement('div');
+    btn.id = 'task-'+app;
+    btn.className = 'activeAppBtn active';
+    btn.textContent = win.querySelector('.title').textContent;
+    btn.onclick = ()=>{
+      if(win.style.display==='none') win.style.display='block';
+      else win.style.display='none';
+    };
+    activeAppsDiv.appendChild(btn);
+  }
+
+  openWindowCount++; // збільшуємо лічильник
+}
+
+
+function closeApp(app){
+  const win = document.getElementById(app+'Window');
+  win.style.display='none';
+  const btn = document.getElementById('task-'+app);
+  if(btn) btn.remove();
+}
+
+// Cursor trail effect
+const trailContainer = document.createElement('div');
+trailContainer.style.position = 'absolute';
+trailContainer.style.top = 0;
+trailContainer.style.left = 0;
+trailContainer.style.width = '100%';
+trailContainer.style.height = '100%';
+trailContainer.style.pointerEvents = 'none';
+document.body.appendChild(trailContainer);
+
+document.addEventListener('mousemove', (e) => {
+  const dot = document.createElement('div');
+  dot.textContent = Math.random() > 0.5 ? '0' : '1';
+  dot.style.color = '#00fff7';
+  dot.style.position = 'absolute';
+  dot.style.left = `${e.clientX}px`;
+  dot.style.top = `${e.clientY}px`;
+  dot.style.fontSize = `${Math.random() * 6 + 6}px`;
+  dot.style.fontFamily = 'monospace';
+  dot.style.opacity = '0.5';
+  dot.style.transition = 'all 0.6s linear';
+  trailContainer.appendChild(dot);
+
+  setTimeout(() => {
+    dot.style.opacity = '0';
+    dot.style.transform = 'translateY(-10px)';
+  }, 10);
+
+  setTimeout(() => { dot.remove(); }, 600);
+});
+</script>
+
+
+</body>
+</html>
+

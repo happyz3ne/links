@@ -290,6 +290,12 @@ body, html {
     overflow-y: auto;
   }
 }
+.file-icon {
+  width: 230px;   /* розмір іконки */
+  height: 230px;  /* можна міняти для збільшення */
+  object-fit: contain;
+  margin-top: 6px;
+}
 
 
 .window-header {
@@ -333,6 +339,8 @@ body, html {
     <div class="icon" onclick="openApp('telegram')"><i class="fab fa-telegram"></i><br>Telegram</div>
     <div class="icon" onclick="openApp('deviantart')"><i class="fab fa-deviantart"></i><br>DeviantArt</div>
     <div class="icon" onclick="openApp('youtube')"><i class="fab fa-youtube"></i><br>YouTube</div>
+    <div class="icon" onclick="openApp('spigot')"><i class="fa-solid fa-gear"></i><br>Spigot.mc</div>
+    <div class="icon" onclick="openApp('falatia')"><i class="fa-solid fa-leaf"></i><br>Falatia</div>
     <div class="icon" onclick="openApps('gallery','gallery1','gallery2')"><i class="fas fa-images"></i><br>Gallery</div>
     <div class="icon" onclick="openApp('trash')"><i class="fas fa-trash"></i><br>Trash</div>
   </div>
@@ -345,10 +353,13 @@ body, html {
   </div>
 
   <div class="startmenu" id="startMenu">
+  <div class="window-content" style="font-size:24px; text-align:left;">Art-OS</div>
     <button onclick="openApp('about')">About</button>
     <button onclick="openApp('telegram')">Telegram</button>
     <button onclick="openApp('deviantart')">DeviantArt</button>
     <button onclick="openApp('youtube')">YouTube</button>
+    <button onclick="openApp('spigot')">Spigot.mc</button>
+     <button onclick="openApp('falatia')">Falatia</button>
     <button onclick="openApps('gallery','gallery1','gallery2')">Gallery</button>
     <button onclick="openApp('trash')">Trash</button>
   </div>
@@ -364,6 +375,10 @@ If you want to purchase any of my artwork or commission a custom piece, feel fre
     <div class="window-header"><div class="title"><i class="fab fa-telegram"></i> Telegram</div><button onclick="closeApp('telegram')">⬤</button></div>
     <div class="window-content">Telegram store: <a href="https://t.me/kantora_zeina" target="_blank" style="color:#00fff7">*Click*</a></div>
   </div>
+  <div class="app-window" id="spigotWindow">
+    <div class="window-header"><div class="title"><i class="fa-solid fa-gear"></i> Spigot.mc</div><button onclick="closeApp('spigot')">⬤</button></div>
+    <div class="window-content">Spigot.mc url: <a href="https://www.spigotmc.org/members/happy_z3ne.1511129/" target="_blank" style="color:#00fff7">*Click*</a></div>
+  </div>
   <div class="app-window" id="deviantartWindow">
     <div class="window-header"><div class="title"><i class="fab fa-deviantart"></i> DeviantArt</div><button onclick="closeApp('deviantart')">⬤</button></div>
     <div class="window-content">My deviantArt portfolio: <a href="https://www.deviantart.com/happymrz3ne" target="_blank" style="color:#00fff7">*Click*</a></div>
@@ -372,6 +387,10 @@ If you want to purchase any of my artwork or commission a custom piece, feel fre
     <div class="window-header"><div class="title"><i class="fab fa-youtube"></i> YouTube</div><button onclick="closeApp('youtube')">⬤</button></div>
     <div class="window-content">My YouTube Channel: <a href="https://www.youtube.com/@mrz3ne" target="_blank" style="color:#00fff7">*Click*</a></div>
   </div>
+  <div class="app-window" id="falatiaWindow">
+    <div class="window-header"><div class="title"><i class="fa-solid fa-leaf"></i> Falatia</div><button onclick="closeApp('falatia')">⬤</button></div>
+    <div class="window-content">Our minecraft project: <a href="https://discord.gg/EjKSrAZ8rW" target="_blank" style="color:#00fff7">*Click*</a></div>
+  </div>
   <div class="app-window" id="trashWindow">
   <div class="window-header">
     <div class="title"><i class="fas fa-trash"></i> Trash</div>
@@ -379,13 +398,37 @@ If you want to purchase any of my artwork or commission a custom piece, feel fre
   </div>
   <div class="window-content" style="display:flex; flex-direction:column; justify-content:flex-start; align-items:flex-start; height:100%; padding:10px;">
     <!-- Клікабельна іконка -->
-    <a href="https://youtu.be/dQw4w9WgXcQ?si=PUdqmvXxOK11h5S0" target="_blank" style="color:#00fff7; margin-left:15px; font-size:58px; text-align:left;">
-      <i class="fas fa-file"></i>
+    <a href="https://youtu.be/dQw4w9WgXcQ?si=PUdqmvXxOK11h5S0" target="_blank" style="color:#00fff7; margin-left:35px; font-size:58px; text-align:left;">
+      <i class="fa-solid fa-file-video"></i>
     </a>
     <!-- Текст під іконкою -->
-    <span style="margin-top:5px; font-size:14px; text-align:left; color:#00fff7;">readme.txt</span>
+    <span style="margin-top:5px; font-size:14px; text-align:left; color:#00fff7;">Summer_2009.mp4</span>
   </div>
 </div>
+  <div class="app-window" id="infoWindow">
+  <div class="window-header">
+    <div class="title"><i class="fa-solid fa-heart"></i> Welcome User!</div>
+    <button onclick="closeApp('info')">⬤</button>
+  </div>
+
+  <div class="window-content" style="display:flex; flex-direction:column; justify-content:flex-start; align-items:center; height:100%; padding:10px;">
+
+    <!-- Іконка -->
+    <img src="./art_logo.png" alt="readme icon" class="file-icon">
+
+    <!-- Назва -->
+    <span style="margin-top:5px; font-size:14px; text-align:center; color:#00fff7;">
+      Welcome user to Art-OS ver. 1.0
+    </span>
+    <span style="margin-top:10px; font-size:14px; text-align:center; color:#00fff7;">
+      To see url's just click on app, close window click circle top-right.
+    </span>
+    <span style="margin-top:10px; font-size:14px; text-align:center; color:#00fff7;">
+      Operating System created by MrZ3NE
+    </span>
+  </div>
+</div>
+
 
 
   </div>
@@ -440,6 +483,10 @@ function showNextLine(){
       const audio = document.getElementById("terminal-sound");
         audio.volume = 0.1;
         audio.play();
+      const infoWindow = document.getElementById("infoWindow");
+      if (infoWindow) {
+        infoWindow.style.display = "block";
+      }
     },500);
   }
 }
@@ -514,7 +561,7 @@ function makeDraggable(el) {
 }
 
 // Apply draggable
-['aboutWindow','telegramWindow','deviantartWindow','youtubeWindow','galleryWindow','gallery1Window','gallery2Window','trashWindow'].forEach(id => {
+['aboutWindow','telegramWindow','deviantartWindow','youtubeWindow','galleryWindow','gallery1Window','gallery2Window','trashWindow','infoWindow','spigotWindow','falatiaWindow'].forEach(id => {
   const win = document.getElementById(id);
   makeDraggable(win);
 });

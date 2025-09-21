@@ -188,7 +188,24 @@ body, html {
 }
 
 .startmenu button:hover {
-  background: rgba(0,255,247,0.2);
+  back
+
+About
+
+Telegram
+
+DeviantArt
+
+YouTube
+
+Spigot.mc
+
+Falatia
+
+Gallery
+
+Trash
+ground: rgba(0,255,247,0.2);
   text-shadow: 0 0 5px #00fff7, 0 0 10px #00fff7;
   border-radius:8px;
   font-weight:bold;
@@ -335,18 +352,18 @@ body, html {
 <div id="boot"></div>
 <div id="desktop">
   <div class="icons">
-    <div class="icon" onclick="openApp('about')"><i class="fas fa-user"></i><br>About</div>
-    <div class="icon" onclick="openApp('telegram')"><i class="fab fa-telegram"></i><br>Telegram</div>
-    <div class="icon" onclick="openApp('deviantart')"><i class="fab fa-deviantart"></i><br>DeviantArt</div>
-    <div class="icon" onclick="openApp('youtube')"><i class="fab fa-youtube"></i><br>YouTube</div>
-    <div class="icon" onclick="openApp('spigot')"><i class="fa-solid fa-gear"></i><br>Spigot.mc</div>
-    <div class="icon" onclick="openApp('falatia')"><i class="fa-solid fa-leaf"></i><br>Falatia</div>
-    <div class="icon" onclick="openApps('gallery','gallery1','gallery2')"><i class="fas fa-images"></i><br>Gallery</div>
-    <div class="icon" onclick="openApp('trash')"><i class="fas fa-trash"></i><br>Trash</div>
+    <div class="icon" onclick="playClickSound(); openApp('about')"><i class="fas fa-user"></i><br>About</div>
+    <div class="icon" onclick="playClickSound(); openApp('telegram')"><i class="fab fa-telegram"></i><br>Telegram</div>
+    <div class="icon" onclick="playClickSound(); openApp('deviantart')"><i class="fab fa-deviantart"></i><br>DeviantArt</div>
+    <div class="icon" onclick="playClickSound(); openApp('youtube')"><i class="fab fa-youtube"></i><br>YouTube</div>
+    <div class="icon" onclick="playClickSound(); openApp('spigot')"><i class="fa-solid fa-gear"></i><br>Spigot.mc</div>
+    <div class="icon" onclick="playClickSound(); openApp('falatia')"><i class="fa-solid fa-leaf"></i><br>Falatia</div>
+    <div class="icon" onclick="playClickSound(); openApps('gallery','gallery1','gallery2')"><i class="fas fa-images"></i><br>Gallery</div>
+    <div class="icon" onclick="playClickSound(); openApp('trash')"><i class="fas fa-trash"></i><br>Trash</div>
   </div>
 
   <div class="taskbar">
-    <button id="startBtn">⭒₊ ⊹⬤₊ ⊹⭒</button>
+    <button id="startBtn" onclick="toggleStartMenu()">⭒₊ ⊹⬤₊ ⊹⭒</button>
     <div id="activeApps"></div>
     <div id="sysInfo">Processes: 65 | RAM: 2.3GB</div>
     <div id="clock"></div>
@@ -354,47 +371,47 @@ body, html {
 
   <div class="startmenu" id="startMenu">
   <div class="window-content" style="font-size:24px; text-align:left;">Art-OS</div>
-    <button onclick="openApp('about')">About</button>
-    <button onclick="openApp('telegram')">Telegram</button>
-    <button onclick="openApp('deviantart')">DeviantArt</button>
-    <button onclick="openApp('youtube')">YouTube</button>
-    <button onclick="openApp('spigot')">Spigot.mc</button>
-     <button onclick="openApp('falatia')">Falatia</button>
-    <button onclick="openApps('gallery','gallery1','gallery2')">Gallery</button>
-    <button onclick="openApp('trash')">Trash</button>
+    <button onclick="playClickSound(); openApp('about')">About</button>
+    <button onclick="playClickSound(); openApp('telegram')">Telegram</button>
+    <button onclick="playClickSound(); openApp('deviantart')">DeviantArt</button>
+    <button onclick="playClickSound(); openApp('youtube')">YouTube</button>
+    <button onclick="playClickSound(); openApp('spigot')">Spigot.mc</button>
+    <button onclick="playClickSound(); openApp('falatia')">Falatia</button>
+    <button onclick="playClickSound(); openApps('gallery','gallery1','gallery2')">Gallery</button>
+    <button onclick="playClickSound(); openApp('trash')">Trash</button>
   </div>
 
   <!-- App windows -->
   <div class="app-window" id="aboutWindow">
-    <div class="window-header"><div class="title"><i class="fas fa-user"></i> About</div><button onclick="closeApp('about')">⬤</button></div>
+    <div class="window-header"><div class="title"><i class="fas fa-user"></i> About</div><button onclick="playClickSoundClose(); closeApp('about')">⬤</button></div>
     <div class="window-content">₊˚⊹♡ Hi am 19 years old and a 3D artist. I work with Blender, Photoshop, Cinema 4D, After Effects, and Premiere Pro. I am also a programmer, currently learning Java and Python, and planning to study C++ in the future.
 
 If you want to purchase any of my artwork or commission a custom piece, feel free to leave a comment or send me a message on Discord – mrz3ne</div>
   </div>
   <div class="app-window" id="telegramWindow">
-    <div class="window-header"><div class="title"><i class="fab fa-telegram"></i> Telegram</div><button onclick="closeApp('telegram')">⬤</button></div>
+    <div class="window-header"><div class="title"><i class="fab fa-telegram"></i> Telegram</div><button onclick="playClickSoundClose(); closeApp('telegram')">⬤</button></div>
     <div class="window-content">Telegram store: <a href="https://t.me/kantora_zeina" target="_blank" style="color:#00fff7">*Click*</a></div>
   </div>
   <div class="app-window" id="spigotWindow">
-    <div class="window-header"><div class="title"><i class="fa-solid fa-gear"></i> Spigot.mc</div><button onclick="closeApp('spigot')">⬤</button></div>
+    <div class="window-header"><div class="title"><i class="fa-solid fa-gear"></i> Spigot.mc</div><button onclick="playClickSoundClose(); closeApp('spigot')">⬤</button></div>
     <div class="window-content">Spigot.mc url: <a href="https://www.spigotmc.org/members/happy_z3ne.1511129/" target="_blank" style="color:#00fff7">*Click*</a></div>
   </div>
   <div class="app-window" id="deviantartWindow">
-    <div class="window-header"><div class="title"><i class="fab fa-deviantart"></i> DeviantArt</div><button onclick="closeApp('deviantart')">⬤</button></div>
+    <div class="window-header"><div class="title"><i class="fab fa-deviantart"></i> DeviantArt</div><button onclick="playClickSoundClose(); closeApp('deviantart')">⬤</button></div>
     <div class="window-content">My deviantArt portfolio: <a href="https://www.deviantart.com/happymrz3ne" target="_blank" style="color:#00fff7">*Click*</a></div>
   </div>
   <div class="app-window" id="youtubeWindow">
-    <div class="window-header"><div class="title"><i class="fab fa-youtube"></i> YouTube</div><button onclick="closeApp('youtube')">⬤</button></div>
+    <div class="window-header"><div class="title"><i class="fab fa-youtube"></i> YouTube</div><button onclick="playClickSoundClose(); closeApp('youtube')">⬤</button></div>
     <div class="window-content">My YouTube Channel: <a href="https://www.youtube.com/@mrz3ne" target="_blank" style="color:#00fff7">*Click*</a></div>
   </div>
   <div class="app-window" id="falatiaWindow">
-    <div class="window-header"><div class="title"><i class="fa-solid fa-leaf"></i> Falatia</div><button onclick="closeApp('falatia')">⬤</button></div>
+    <div class="window-header"><div class="title"><i class="fa-solid fa-leaf"></i> Falatia</div><button onclick="playClickSoundClose(); closeApp('falatia')">⬤</button></div>
     <div class="window-content">Our minecraft project: <a href="https://discord.gg/EjKSrAZ8rW" target="_blank" style="color:#00fff7">*Click*</a></div>
   </div>
   <div class="app-window" id="trashWindow">
   <div class="window-header">
     <div class="title"><i class="fas fa-trash"></i> Trash</div>
-    <button onclick="closeApp('trash')">⬤</button>
+    <button onclick="playClickSoundClose(); closeApp('trash')">⬤</button>
   </div>
   <div class="window-content" style="display:flex; flex-direction:column; justify-content:flex-start; align-items:flex-start; height:100%; padding:10px;">
     <!-- Клікабельна іконка -->
@@ -408,7 +425,7 @@ If you want to purchase any of my artwork or commission a custom piece, feel fre
   <div class="app-window" id="infoWindow">
   <div class="window-header">
     <div class="title"><i class="fa-solid fa-heart"></i> Welcome User!</div>
-    <button onclick="closeApp('info')">⬤</button>
+    <button onclick="playClickSoundClose(); closeApp('info')">⬤</button>
   </div>
 
   <div class="window-content" style="display:flex; flex-direction:column; justify-content:flex-start; align-items:center; height:100%; padding:10px;">
@@ -433,26 +450,71 @@ If you want to purchase any of my artwork or commission a custom piece, feel fre
 
   </div>
   <div class="app-window" id="galleryWindow">
-    <div class="window-header"><div class="title"><i class="fas fa-images"></i> Image</div><button onclick="closeApp('gallery')">⬤</button></div>
+    <div class="window-header"><div class="title"><i class="fas fa-images"></i> Image</div><button onclick="playClickSoundClose(); closeApp('gallery')">⬤</button></div>
     <div class="window-content">
       <img src="./image2.webp" alt="render1" style="width:100%; height:100%; display:block;">
     </div>
   </div>
 </div>
   <div class="app-window" id="gallery1Window">
-    <div class="window-header"><div class="title"><i class="fas fa-images"></i> Image 2</div><button onclick="closeApp('gallery1')">⬤</button></div>
+    <div class="window-header"><div class="title"><i class="fas fa-images"></i> Image 2</div><button onclick="playClickSoundClose(); closeApp('gallery1')">⬤</button></div>
     <div class="window-content" style="display:flex; justify-content:center; align-items:center; height:100%;">
       <img src="./image1.webp" alt="render1" style="width:60%; height:100%; display:block;">
     </div>
   </div>
 </div>
   <div class="app-window" id="gallery2Window">
-    <div class="window-header"><div class="title"><i class="fas fa-images"></i> Image 3</div><button onclick="closeApp('gallery2')">⬤</button></div>
+    <div class="window-header"><div class="title"><i class="fas fa-images"></i> Image 3</div><button onclick="playClickSoundClose(); closeApp('gallery2')">⬤</button></div>
     <div class="window-content" style="display:flex; justify-content:center; align-items:center; height:100%;">
       <img src="./image3.webp" alt="render1" style="width:60%; height:100%; display:block;">
     </div>
   </div>
 </div>
+
+<script>
+  // Створюємо аудіо-об'єкт
+  const clickSound = new Audio("./open_up.mp3"); // заміни на свій файл
+
+  function playClickSound() {
+    clickSound.currentTime = 0.9; // щоб звук грав з початку при кожному натисканні
+    clickSound.play();
+  }
+
+  function openApp(appName) {
+    console.log("Відкривається додаток:", appName);
+    // тут твій код для відкриття
+  }
+</script>
+<script>
+  const menuSound = new Audio("./menu.mp3"); // твій файл звуку
+
+  function toggleStartMenu() {
+    const startMenu = document.getElementById("startMenu");
+    // Показ/приховування меню
+    startMenu.style.display = (startMenu.style.display === "block" ? "none" : "block");
+
+    // Граємо звук
+    menuSound.currentTime = 0;
+    menuSound.volume = 0.1; // регулюємо гучність
+    menuSound.play().catch(err => console.log("Autoplay blocked:", err));
+  }
+
+  // Прив'язка до кнопки
+  document.getElementById("startBtn").onclick = toggleStartMenu;
+</script>
+<script>
+  const clickSoundClose = new Audio("./close_up.mp3"); // твій звук для закриття
+
+  function playClickSoundClose() {
+    clickSoundClose.currentTime = 0.5; // залишаємо 0.9 (не чіпаємо)
+    clickSoundClose.play();
+  }
+
+  function closeApp(appName) {
+    console.log("Закриваємо додаток:", appName);
+    // тут твій код для закриття
+  }
+</script>
 
 <script>
 // Фонове аудіо
@@ -495,7 +557,6 @@ showNextLine();
 // Start menu toggle
 const startBtn=document.getElementById('startBtn');
 const startMenu=document.getElementById('startMenu');
-startBtn.onclick=()=>{startMenu.style.display=(startMenu.style.display==='block'?'none':'block');};
 
 function openApps(...apps) {
   apps.forEach(app => openApp(app));

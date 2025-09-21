@@ -188,24 +188,7 @@ body, html {
 }
 
 .startmenu button:hover {
-  back
-
-About
-
-Telegram
-
-DeviantArt
-
-YouTube
-
-Spigot.mc
-
-Falatia
-
-Gallery
-
-Trash
-ground: rgba(0,255,247,0.2);
+  background: rgba(0,255,247,0.2);
   text-shadow: 0 0 5px #00fff7, 0 0 10px #00fff7;
   border-radius:8px;
   font-weight:bold;
@@ -313,6 +296,89 @@ ground: rgba(0,255,247,0.2);
   object-fit: contain;
   margin-top: 6px;
 }
+#galleryWindow .window-content,
+#gallery1Window .window-content,
+#gallery2Window .window-content {
+  display: flex;
+  justify-content: center; /* горизонтальне центрування */
+  align-items: center;     /* вертикальне центрування */
+  height: 100%;
+  width: 100%;
+  background: rgba(0,0,0,0.05);
+  overflow: hidden;
+  padding: 10px;
+  box-sizing: border-box; /* padding не додається до розміру */
+}
+
+
+#galleryWindow .window-content img,
+#gallery1Window .window-content img,
+#gallery2Window .window-content img {
+  max-width: calc(100% - 20px);   /* враховує padding контейнера */
+  max-height: calc(100% - 20px);
+  width: auto;
+  height: auto;
+  object-fit: contain;   /* зберігає пропорції */
+  display: block;
+  margin: auto;          /* по центру */
+  border-radius: 8px;
+  border: 1px solid #00fff7;
+}
+
+
+/* Глітч-рамка під твій стиль */
+.glitch-border {
+  border: 3px solid #00fff7; /* основний колір */
+  border-radius: 8px;
+  position: relative;
+  overflow: hidden;
+  animation: glitchBorder 1s infinite;
+  box-shadow: 
+  0 0 30px rgba(0, 255, 247, 0.3), 
+  0 0 50px rgba(0, 255, 247, 0.2), 
+  0 0 20px rgba(0, 255, 247, 0.15);
+
+}
+
+/* Динамічні смуги всередині картинки */
+.glitch-border::before,
+.glitch-border::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  border-radius: 8px;
+  pointer-events: none;
+  background: linear-gradient(0deg, rgba(0,255,247,0.05) 0%, rgba(0,255,247,0.1) 50%, rgba(0,255,247,0.05) 100%);
+  animation: glitchLines 0.3s infinite linear;
+  mix-blend-mode: overlay;
+}
+
+.glitch-border::after {
+  animation-delay: 0.15s;
+}
+
+/* Основна анімація глітчу рамки */
+@keyframes glitchBorder {
+  0%   { border-color: #00fff7; transform: translate(0,0) rotate(0deg); opacity: 1; }
+  10%  { border-color: #00e0f0; transform: translate(-1px,1px) rotate(-0.3deg); opacity: 0.9; }
+  20%  { border-color: #00fff7; transform: translate(2px,-1px) rotate(0.5deg); opacity: 1; }
+  30%  { border-color: #00c0f0; transform: translate(-2px,0) rotate(-0.2deg); opacity: 0.8; }
+  40%  { border-color: #00fff7; transform: translate(1px,2px) rotate(0.2deg); opacity: 1; }
+  50%  { border-color: #00b8e0; transform: translate(-1px,-1px) rotate(0deg); opacity: 0.9; }
+  60%  { border-color: #00fff7; transform: translate(0,1px) rotate(0.1deg); opacity: 1; }
+  70%  { border-color: #00e0f0; transform: translate(1px,0) rotate(-0.1deg); opacity: 0.95; }
+  80%  { border-color: #00fff7; transform: translate(0,-1px) rotate(0deg); opacity: 1; }
+  90%  { border-color: #00c0f0; transform: translate(-1px,1px) rotate(0deg); opacity: 0.85; }
+  100% { border-color: #00fff7; transform: translate(0,0) rotate(0deg); opacity: 1; }
+}
+
+/* Анімація мерехтливих смуг */
+@keyframes glitchLines {
+  0%   { background-position: 0 0; }
+  100% { background-position: 0 100%; }
+}
+
+
 
 
 .window-header {
@@ -452,21 +518,21 @@ If you want to purchase any of my artwork or commission a custom piece, feel fre
   <div class="app-window" id="galleryWindow">
     <div class="window-header"><div class="title"><i class="fas fa-images"></i> Image</div><button onclick="playClickSoundClose(); closeApp('gallery')">⬤</button></div>
     <div class="window-content">
-      <img src="./image2.webp" alt="render1" style="width:100%; height:100%; display:block;">
+      <img src="./image2.webp" alt="render1" class="glitch-border">
     </div>
   </div>
 </div>
   <div class="app-window" id="gallery1Window">
     <div class="window-header"><div class="title"><i class="fas fa-images"></i> Image 2</div><button onclick="playClickSoundClose(); closeApp('gallery1')">⬤</button></div>
     <div class="window-content" style="display:flex; justify-content:center; align-items:center; height:100%;">
-      <img src="./image1.webp" alt="render1" style="width:60%; height:100%; display:block;">
+      <img src="./image1.webp" alt="render1" style="display:block;">
     </div>
   </div>
 </div>
   <div class="app-window" id="gallery2Window">
     <div class="window-header"><div class="title"><i class="fas fa-images"></i> Image 3</div><button onclick="playClickSoundClose(); closeApp('gallery2')">⬤</button></div>
     <div class="window-content" style="display:flex; justify-content:center; align-items:center; height:100%;">
-      <img src="./image3.webp" alt="render1" style="width:60%; height:100%; display:block;">
+      <img src="./image3.webp" alt="render1" style="display:block;">
     </div>
   </div>
 </div>
@@ -553,6 +619,69 @@ function showNextLine(){
   }
 }
 showNextLine();
+// --- DeviantArt Integration ---
+async function loadDeviantArtGallery(){
+  const rssUrl = 'https://backend.deviantart.com/rss.xml?q=gallery:happymrz3ne&type=deviation';
+  const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`;
+
+  try {
+    const response = await fetch(apiUrl);
+    const data = await response.json();
+    const galleryImgs = ['gallery','gallery1','gallery2'];
+
+    for (let i = 0; i < galleryImgs.length; i++) {
+      const item = data.items[i];
+      if (!item) continue;
+
+      const imgUrl = item.enclosure?.link || item.thumbnail || './placeholder.png';
+      const pageUrl = item.link || '#';
+
+      const container = document.querySelector(`#${galleryImgs[i]}Window .window-content`);
+
+      const imgEl = document.createElement('img');
+      imgEl.src = imgUrl;
+      imgEl.alt = item.title;
+      imgEl.classList.add('glitch-border');
+
+      const linkEl = document.createElement('a');
+      linkEl.href = pageUrl;
+      linkEl.target = "_blank";
+
+      linkEl.appendChild(imgEl);
+
+      container.innerHTML = '';
+      container.appendChild(linkEl);
+    }
+  } catch(err) {
+    console.error('Failed to load DeviantArt gallery:', err);
+  }
+}
+
+
+function adaptGalleryImage(windowId) {
+  const win = document.getElementById(windowId + 'Window');
+  const img = win.querySelector('.window-content img');
+  if (!img) return;
+  const container = img.parentElement;
+
+  img.style.width = 'auto';
+  img.style.height = 'auto';
+
+  const containerWidth = container.clientWidth - 20; // padding
+  const containerHeight = container.clientHeight - 20;
+
+  const imgNaturalWidth = img.naturalWidth;
+  const imgNaturalHeight = img.naturalHeight;
+
+  const widthRatio = containerWidth / imgNaturalWidth;
+  const heightRatio = containerHeight / imgNaturalHeight;
+
+  const scale = Math.min(widthRatio, heightRatio, 1);
+
+  img.style.width = imgNaturalWidth * scale + 'px';
+  img.style.height = imgNaturalHeight * scale + 'px';
+}
+
 
 // Start menu toggle
 const startBtn=document.getElementById('startBtn');
@@ -567,7 +696,14 @@ function updateClock(){
   document.getElementById('clock').textContent=now.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
 }
 setInterval(updateClock,1000);
+loadDeviantArtGallery(); // <-- ОНОВЛЕННЯ ГАЛЕРЕЇ
 updateClock();
+
+const galleryWindows = ['gallery', 'gallery1', 'gallery2'];
+galleryWindows.forEach(id => {
+  const img = document.querySelector(`#${id}Window .window-content img`);
+  if(img) img.onload = () => adaptGalleryImage(id);
+});
 
 function makeDraggable(el) {
   let posX = 0, posY = 0, mouseX = 0, mouseY = 0;

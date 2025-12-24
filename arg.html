@@ -1,0 +1,576 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>sh ./library</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap&subset=cyrillic');
+
+        body {
+            background-color: #050505;
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            font-family: 'VT323', monospace;
+            user-select: none;
+            cursor: default; /* Курсор для меню */
+        }
+
+        /* РАМКА МОНІТОРА */
+        #monitor-frame {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            background: #111;
+            padding: 2vh; 
+            box-sizing: border-box;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* ЕКРАН */
+        #screen-container {
+            position: relative;
+            aspect-ratio: 4/3;
+            height: 90vh; 
+            background: #000;
+            border: 4px solid #222;
+            border-radius: 4px;
+            overflow: hidden;
+            box-shadow: inset 0 0 50px rgba(0,0,0,1);
+        }
+
+        /* Курсор ховаємо ТІЛЬКИ в грі */
+        .game-running {
+            cursor: none !important;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+            image-rendering: pixelated; 
+            image-rendering: -moz-crisp-edges;
+            position: absolute;
+            z-index: 1;
+        }
+
+        /* ШАРИ (Z-INDEX)
+           1: Canvas
+           2: Darkness
+           3: UI / Menus
+           4: CRT Effects (Scanlines) - Щоб текст був під ефектами
+        */
+
+        #darkness-layer {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none;
+            background: radial-gradient(
+                circle 140px at var(--x) var(--y), 
+                rgba(255, 255, 255, 0.1) 0%, 
+                rgba(0,0,0,0.8) 50%,
+                rgba(0,0,0,0.98) 80%, 
+                black 100%
+            );
+            z-index: 2; mix-blend-mode: multiply; transition: background 0.1s;
+        }
+        .lightning-flash { background: rgba(255, 255, 255, 0.4) !important; mix-blend-mode: screen !important; }
+
+        /* UI */
+        #ui-layer {
+            position: absolute; top: 10px; left: 10px;
+            color: #fff; font-size: 24px; z-index: 3;
+            pointer-events: none; text-shadow: 2px 2px 0 #000;
+        }
+
+        /* ПРОГРЕС БАР (ГЛУЗД) */
+        #sanity-container {
+            position: absolute; bottom: 15px; left: 50%; transform: translateX(-50%);
+            width: 300px; height: 20px; 
+            background: #111; 
+            border: 2px solid #555; 
+            z-index: 3;
+        }
+        
+        #sanity-bar { 
+            width: 100%; height: 100%; 
+            background-color: #d00; 
+            /* Піксельна текстура */
+            background-image: repeating-linear-gradient(
+                90deg,
+                transparent,
+                transparent 2px,
+                #000 2px,
+                #000 4px
+            );
+            /* ВАЖЛИВО: Ніякої анімації для миттєвої реакції */
+            transition: none; 
+        }
+
+        /* ЕКРАНИ (Меню/Смерть) - Тепер вони під сканлайнами */
+        #start-screen, #game-over-screen {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(5,5,5,0.95); 
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center; 
+            z-index: 3; /* Під ефектами */
+            text-align: center; color: white;
+        }
+
+        h1 { 
+            font-size: 80px; 
+            color: #f00; 
+            text-shadow: 4px 4px 0 #000; 
+            margin-bottom: 10px; 
+            font-weight: normal; 
+            letter-spacing: 5px;
+        }
+        p { font-size: 30px; color: #888; margin-bottom: 40px; text-transform: uppercase; }
+        
+        .mc-btn {
+            background-color: #000; 
+            border: 4px solid #fff; 
+            color: #fff;
+            padding: 15px 40px; 
+            font-family: 'VT323', monospace; 
+            font-size: 30px;
+            text-shadow: 2px 2px 0 #000; 
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+        .mc-btn:hover { background-color: #333; border-color: #aaa; color: #aaa; }
+
+        /* ЕФЕКТИ (ПОВЕРХ УСЬОГО) */
+        .scanlines {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            background-size: 100% 4px, 6px 100%;
+            pointer-events: none; z-index: 100; opacity: 0.6;
+        }
+        
+        .crt-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle, transparent 50%, rgba(0,0,0,0.4) 100%);
+            pointer-events: none; z-index: 101;
+            box-shadow: inset 0 0 100px rgba(0,0,0,0.9);
+        }
+        
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+    <img id="img-eye" src="eye.png" style="display:none">
+    <img id="img-he" src="image_1c63a7.png" style="display:none">
+
+    <div id="monitor-frame">
+        <div id="screen-container">
+            <canvas id="gameCanvas" width="320" height="240"></canvas>
+            
+            <div id="darkness-layer" style="--x: 50%; --y: 50%"></div>
+            
+            <div id="ui-layer">ДАНИХ: <span id="progress-text" style="color: yellow;">0%</span></div>
+            <div id="sanity-container">
+                <div id="sanity-bar"></div>
+            </div>
+
+            <div id="start-screen">
+                <h1>Бібліотека</h1>
+                <p>Розшифруйте щоденник. Не втрачайте глузд.</p>
+                <div class="mc-btn" onclick="startGame()">УВІЙТИ</div>
+            </div>
+
+            <div id="game-over-screen" class="hidden">
+                <h1>Кінець</h1>
+                <p id="go-msg" style="color: #666;">Глузд втрачено</p>
+                <div class="mc-btn" onclick="location.reload()">Ще раз</div>
+            </div>
+
+            <div class="scanlines"></div>
+            <div class="crt-overlay"></div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        ctx.imageSmoothingEnabled = false; 
+
+        const darkness = document.getElementById('darkness-layer');
+        const progressText = document.getElementById('progress-text');
+        const sanityBar = document.getElementById('sanity-bar');
+        const sanityContainer = document.getElementById('sanity-container');
+        const uiLayer = document.getElementById('ui-layer');
+        const screenDiv = document.getElementById('screen-container');
+        
+        const GAME_W = 320;
+        const GAME_H = 240;
+
+        const imgEye = document.getElementById('img-eye');
+        const imgHe = document.getElementById('img-he');
+
+        let gameState = 'START'; 
+        let active = false;
+        let scaledMouseX = GAME_W / 2;
+        let scaledMouseY = GAME_H / 2;
+        let frame = 0;
+        
+        // Налаштування
+        let decodeProgress = 0; 
+        let sanity = 100;
+        const DECODE_SPEED = 0.12; 
+        const SANITY_DRAIN_SPEED = 0.08; // Збільшено, щоб не можна було AFK
+        const EYE_BURN_SPEED = 4.0;
+        const MAX_EYES = 5;
+
+        const bookTextContent = [
+            // Ліва сторінка
+            "Я думав, що я",
+            "Творець цього.",
+            "Я будував ці",
+            "стіни зовні.",
+            "Але екран став",
+            "вікном у пекло.",
+            "І вікно це",
+            "відкрилося...",
+            // Права сторінка
+            "Тепер моє небо",
+            "це пустота. Мої руки",
+            "стали чужими",
+            "Він стоїть там.",
+            "на горизонті.",
+            "Я хотів просто",
+            "дарувати радість...",
+            "Але тепер я лише",
+            "частина програми."
+        ];
+
+        const horizonY = GAME_H * 0.45; 
+        const centerX = GAME_W / 2;
+
+        const bookCoords = {
+            tl: { x: GAME_W * 0.30, y: GAME_H * 0.65 }, 
+            tr: { x: GAME_W * 0.70, y: GAME_H * 0.65 }, 
+            bl: { x: GAME_W * 0.20, y: GAME_H * 0.95 }, 
+            br: { x: GAME_W * 0.80, y: GAME_H * 0.95 }  
+        };
+
+        const pcW = 100; const pcH = 60;
+        const pcX = centerX - pcW/2; const pcY = horizonY - 30;
+
+        let eyes = [];
+        let he = { active: false, alpha: 0, x: centerX, y: horizonY - 20 };
+        
+        let lightningTimer = 0;
+        let rainDrops = [];
+        for(let i=0; i<40; i++) rainDrops.push({x: Math.random()*GAME_W, y: Math.random()*horizonY, len: 4+Math.random()*8, speed: 6+Math.random()*4});
+
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playSound(type) {
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination); const now = audioCtx.currentTime;
+            
+            if (type === 'thunder') {
+                const bufferSize = audioCtx.sampleRate; const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+                const data = buffer.getChannelData(0); for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+                const noise = audioCtx.createBufferSource(); noise.buffer = buffer;
+                const filter = audioCtx.createBiquadFilter(); filter.type = 'lowpass'; filter.frequency.value = 300;
+                noise.connect(filter); filter.connect(gain); gain.connect(audioCtx.destination);
+                gain.gain.setValueAtTime(0.6, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 1.0); noise.start();
+            } else if (type === 'burn') {
+                osc.type = 'square'; osc.frequency.setValueAtTime(200, now); osc.frequency.linearRampToValueAtTime(400, now+0.1);
+                gain.gain.setValueAtTime(0.1, now); gain.gain.linearRampToValueAtTime(0, now+0.1); osc.start(); osc.stop(now+0.1);
+            } else if (type === 'click') {
+                osc.type = 'triangle'; osc.frequency.setValueAtTime(500, now); gain.gain.setValueAtTime(0.05, now);
+                gain.gain.exponentialRampToValueAtTime(0.001, now+0.05); osc.start(); osc.stop(now+0.05);
+            } else if (type === 'scare') {
+                osc.type = 'sawtooth'; osc.frequency.setValueAtTime(80, now); osc.frequency.exponentialRampToValueAtTime(40, now+0.5);
+                gain.gain.setValueAtTime(0.4, now); gain.gain.linearRampToValueAtTime(0, now+0.5); osc.start(); osc.stop(now+0.5);
+            }
+        }
+
+        function startGame() {
+            document.getElementById('start-screen').classList.add('hidden');
+            screenDiv.classList.add('game-running');
+            active = true;
+            gameState = 'PLAY';
+            loop();
+            spawnEyeLoop();
+        }
+
+        function spawnEyeLoop() {
+            if (!active || gameState !== 'PLAY') return;
+            if (eyes.length < MAX_EYES) {
+                let ey = horizonY + Math.random() * (GAME_H - horizonY);
+                let ex = Math.random() * GAME_W;
+                if (ey > bookCoords.tl.y && ex > bookCoords.bl.x && ex < bookCoords.br.x) {
+                    ex = Math.random() > 0.5 ? 20 : GAME_W - 20;
+                }
+                let depth = (ey - horizonY) / (GAME_H - horizonY); 
+                let targetSize = 8 + depth * 16; 
+                eyes.push({ x: ex, y: ey, size: 0, maxSize: targetSize, depth: depth });
+            }
+            setTimeout(spawnEyeLoop, 1500 + Math.random() * 2000);
+        }
+
+        screenDiv.addEventListener('mousemove', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = GAME_W / rect.width;
+            const scaleY = GAME_H / rect.height;
+            scaledMouseX = (e.clientX - rect.left) * scaleX;
+            scaledMouseY = (e.clientY - rect.top) * scaleY;
+            darkness.style.setProperty('--x', (e.clientX - rect.left) + 'px');
+            darkness.style.setProperty('--y', (e.clientY - rect.top) + 'px');
+        });
+
+        function isMouseOnBook() {
+            return scaledMouseX > bookCoords.bl.x && scaledMouseX < bookCoords.br.x &&
+                   scaledMouseY > bookCoords.tl.y && scaledMouseY < bookCoords.bl.y;
+        }
+
+        function update() {
+            if (!active) return;
+            frame++;
+
+            if (gameState === 'PLAY') {
+                if (lightningTimer > 0) lightningTimer--;
+                if (Math.random() > 0.997 && lightningTimer <= 0) {
+                    lightningTimer = 10; playSound('thunder');
+                    darkness.classList.add('lightning-flash');
+                    setTimeout(() => darkness.classList.remove('lightning-flash'), 80);
+                }
+
+                let sanityDrainedThisFrame = false;
+
+                if (isMouseOnBook()) {
+                    decodeProgress += DECODE_SPEED;
+                    if (frame % 15 === 0) playSound('click');
+                }
+
+                for (let i = eyes.length - 1; i >= 0; i--) {
+                    let eye = eyes[i];
+                    if (eye.size < eye.maxSize) eye.size += 0.4;
+                    let dx = scaledMouseX - eye.x;
+                    let dy = scaledMouseY - eye.y;
+                    let dist = Math.sqrt(dx*dx + dy*dy);
+                    let burnRadius = 25 * eye.depth; if (burnRadius < 15) burnRadius = 15;
+                    if (dist < burnRadius) { 
+                        eye.size -= EYE_BURN_SPEED;
+                        if (Math.random() > 0.7) playSound('burn');
+                        if (eye.size <= 0) {
+                            eyes.splice(i, 1);
+                            sanity = Math.min(100, sanity + 12);
+                            continue;
+                        }
+                    } else {
+                        // Якщо око виросло повністю - воно починає їсти розум
+                        if (eye.size >= eye.maxSize * 0.8) {
+                            sanity -= SANITY_DRAIN_SPEED;
+                            sanityDrainedThisFrame = true;
+                        }
+                    }
+                }
+
+                // Штраф, якщо є очі, але ми їх не палимо (щоб не можна було просто читати)
+                if (eyes.length > 0 && !sanityDrainedThisFrame && isMouseOnBook()) {
+                     sanity -= SANITY_DRAIN_SPEED * 0.5;
+                }
+
+                if (sanity < 50) {
+                    he.active = true;
+                    he.alpha = (50 - sanity) / 50; 
+                    he.x = centerX + (Math.random()-0.5) * 5;
+                } else { he.active = false; }
+
+                if (sanity <= 0) gameOver("ГЛУЗД ВТРАЧЕНО", false);
+                if (decodeProgress >= 100) winGame();
+
+                progressText.innerText = Math.floor(decodeProgress) + "%";
+                sanityBar.style.width = sanity + "%";
+            }
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, GAME_W, GAME_H);
+            
+            if (gameState === 'PLAY') {
+                drawRoom();
+                drawBook(false); 
+                drawEyes();
+                drawHe();
+                drawCursor();
+            } else if (gameState === 'WIN') {
+                ctx.fillStyle = '#050302'; ctx.fillRect(0,0,GAME_W,GAME_H);
+                drawBookCloseUp();
+            }
+        }
+
+        function drawRoom() {
+            ctx.fillStyle = '#080808'; ctx.fillRect(0, 0, GAME_W, horizonY);
+            ctx.fillStyle = lightningTimer > 0 ? '#445' : '#020205';
+            let winW = 60; let winH = 80; let winY = horizonY - 100;
+            ctx.fillRect(40, winY, winW, winH); ctx.fillRect(GAME_W - 100, winY, winW, winH);
+            
+            ctx.fillStyle = '#446688';
+            rainDrops.forEach(d => {
+                d.y += d.speed; if (d.y > horizonY) d.y = 0;
+                if ((d.x > 40 && d.x < 100) || (d.x > GAME_W - 100 && d.x < GAME_W - 40)) {
+                    if (d.y > winY && d.y < winY + winH) ctx.fillRect(d.x, d.y, 1, d.len/2);
+                }
+            });
+            ctx.strokeStyle = '#000'; ctx.lineWidth = 4;
+            ctx.strokeRect(40, winY, winW, winH); ctx.strokeRect(GAME_W - 100, winY, winW, winH);
+
+            ctx.fillStyle = '#3e2723';
+            ctx.beginPath();
+            ctx.moveTo(0, horizonY); ctx.lineTo(GAME_W, horizonY);
+            ctx.lineTo(GAME_W, GAME_H); ctx.lineTo(0, GAME_H);
+            ctx.fill();
+            ctx.strokeStyle = '#2d1b18'; ctx.lineWidth = 1; ctx.beginPath();
+            for(let i = -GAME_W; i < GAME_W * 2; i += 15) {
+                 ctx.moveTo(i, GAME_H); ctx.lineTo(centerX + (i - centerX) * 0.3, horizonY);
+            }
+            ctx.stroke();
+
+            ctx.fillStyle = '#111';
+            ctx.fillRect(centerX - 10, pcY + pcH, 20, 10);
+            ctx.fillRect(centerX - 20, pcY + pcH + 10, 40, 2); 
+            ctx.fillStyle = '#111'; ctx.fillRect(pcX, pcY, pcW, pcH);
+            ctx.fillStyle = '#050a10'; ctx.fillRect(pcX + 2, pcY + 2, pcW - 4, pcH - 4);
+            ctx.fillStyle = '#222'; ctx.fillRect(pcX - 10, pcY + pcH + 15, pcW + 20, 15);
+            ctx.fillStyle = '#444';
+            for(let kx=pcX-5; kx<pcX+pcW+5; kx+=4) {
+                 ctx.fillRect(kx, pcY + pcH + 18, 2, 2); ctx.fillRect(kx, pcY + pcH + 24, 2, 2);
+            }
+            ctx.fillStyle = '#222'; ctx.beginPath(); ctx.ellipse(pcX + pcW + 25, pcY + pcH + 22, 6, 9, 0, 0, Math.PI*2); ctx.fill();
+        }
+
+        function drawBook() {
+            let bookY = pcY + pcH + 35;
+            ctx.fillStyle = 'rgba(0,0,0,0.4)'; 
+            ctx.beginPath();
+            ctx.moveTo(bookCoords.tl.x + 4, bookY + 4);
+            ctx.lineTo(bookCoords.tr.x - 4, bookY + 4);
+            ctx.lineTo(bookCoords.br.x - 2, bookCoords.br.y + 2);
+            ctx.lineTo(bookCoords.bl.x + 2, bookCoords.bl.y + 2);
+            ctx.fill();
+
+            ctx.fillStyle = '#efebe9'; 
+            ctx.beginPath();
+            ctx.moveTo(bookCoords.tl.x, bookY);
+            ctx.lineTo(bookCoords.tr.x, bookY);
+            ctx.lineTo(bookCoords.br.x, bookCoords.br.y);
+            ctx.lineTo(bookCoords.bl.x, bookCoords.bl.y);
+            ctx.fill();
+            ctx.strokeStyle = '#5d4037'; ctx.lineWidth = 2; ctx.stroke();
+
+            ctx.fillStyle = '#000'; 
+            let lines = 8;
+            for(let i=0; i<lines; i++) {
+                if (i < lines * (decodeProgress/100)) {
+                    ctx.fillRect(centerX - 40, bookY + 10 + i * 5, 80, 2);
+                }
+            }
+        }
+
+        function drawBookCloseUp() {
+            let bx = 20; let by = 20; let bw = GAME_W - 40; let bh = GAME_H - 40;
+            
+            ctx.fillStyle = '#5d4037'; ctx.fillRect(bx - 5, by - 5, bw + 10, bh + 10);
+            ctx.fillStyle = '#efebe9';
+            ctx.fillRect(bx, by, bw/2, bh); 
+            ctx.fillRect(bx + bw/2, by, bw/2, bh); 
+            
+            ctx.strokeStyle = '#d7ccc8'; ctx.lineWidth = 1;
+            ctx.beginPath(); ctx.moveTo(bx + bw/2, by); ctx.lineTo(bx + bw/2, by + bh); ctx.stroke();
+
+            ctx.fillStyle = '#000'; ctx.textAlign = 'left';
+            ctx.font = '10px "VT323"';
+            
+            for(let i=0; i<bookTextContent.length; i++) {
+                let txt = bookTextContent[i];
+                let lineH = 15;
+                let startY = by + 25; 
+
+                if (i < 8) { 
+                    ctx.fillText(txt, bx + 10, startY + i * lineH);
+                } else { 
+                    ctx.fillText(txt, bx + bw/2 + 10, startY + (i - 8) * lineH);
+                }
+            }
+            
+            ctx.fillStyle = '#a00'; ctx.textAlign = 'center';
+            ctx.font = '10px "VT323"';
+            ctx.fillText("НАТИСНИ ПРОБІЛ ЩОБ ВИЙТИ", centerX, GAME_H - 15);
+        }
+
+        function drawEyes() {
+            eyes.forEach(eye => {
+                ctx.save(); ctx.translate(eye.x, eye.y);
+                let currentSize = eye.size;
+                if (imgEye.complete && imgEye.naturalWidth > 0) {
+                    ctx.imageSmoothingEnabled = false; 
+                    ctx.drawImage(imgEye, -currentSize/2, -currentSize/2, currentSize, currentSize);
+                } else {
+                    ctx.fillStyle = '#fff'; ctx.fillRect(-currentSize/2, -currentSize/2, currentSize, currentSize);
+                    ctx.fillStyle = '#000'; ctx.fillRect(-2, -2, 4, 4); 
+                }
+                ctx.restore();
+            });
+        }
+
+        function drawHe() {
+            if (he.active && he.alpha > 0) {
+                ctx.save(); ctx.globalAlpha = he.alpha;
+                let scale = 0.4; let hW = 100 * scale; let hH = 200 * scale;
+                if (imgHe.complete && imgHe.naturalWidth > 0) {
+                    let shake = (Math.random()-0.5)*3;
+                    ctx.drawImage(imgHe, he.x - hW/2 + shake, he.y - hH/2, hW, hH);
+                } else {
+                    ctx.fillStyle = 'black'; ctx.fillRect(he.x - hW/2, he.y - hH/2, hW, hH);
+                }
+                ctx.restore();
+            }
+        }
+
+        function drawCursor() {
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(scaledMouseX - 5, scaledMouseY); ctx.lineTo(scaledMouseX + 5, scaledMouseY);
+            ctx.moveTo(scaledMouseX, scaledMouseY - 5); ctx.lineTo(scaledMouseX, scaledMouseY + 5);
+            ctx.stroke();
+        }
+
+        function winGame() {
+            gameState = 'WIN';
+            uiLayer.style.display = 'none';
+            sanityContainer.style.display = 'none';
+            darkness.style.display = 'none';
+            screenDiv.classList.remove('game-running');
+        }
+
+        function gameOver(msg, win) {
+            active = false;
+            document.getElementById('game-over-screen').classList.remove('hidden');
+            screenDiv.classList.remove('game-running');
+            if (!win) playSound('scare');
+        }
+
+        window.addEventListener('keydown', (e) => {
+            if (gameState === 'WIN' && e.code === 'Space') {
+                location.reload();
+            }
+        });
+
+        function loop() {
+            if (active) { update(); draw(); requestAnimationFrame(loop); }
+        }
+    </script>
+</body>
+</html>
